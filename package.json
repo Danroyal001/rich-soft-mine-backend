@@ -1,0 +1,31 @@
+{
+  "name": "rich-soft-mine-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build":"npx tsc --project ./",
+    "start":"npm run build && node ./dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://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@github.com/Danroyal001/rich-soft-mine-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Danroyal001/rich-soft-mine-backend/issues"
+  },
+  "homepage": "https://github.com/Danroyal001/rich-soft-mine-backend#readme",
+  "dependencies": {
+    "express": "^4.18.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^17.0.31",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.4"
+  }
+}
