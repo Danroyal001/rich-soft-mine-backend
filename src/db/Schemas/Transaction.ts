@@ -1,16 +1,16 @@
 import { ObjectId } from "mongodb";
+import Chronological from "./Chronological";
 
-interface Transaction {
+export type TransactionType = 'credit' | 'debit' | 'generic' | 'loan-credit';
+
+interface Transaction extends Chronological {
     _id?: ObjectId;
     fromUser?: ObjectId;
     touser?: ObjectId;
-    type?: 'credit' | 'debit' | 'generic';
+    type?: TransactionType;
     narration?: string;
     amount_in_naira?: number;
     generic_amount?: number;
-
-    createdAt?: Date;
-    updatedAt?: Date;
 }
 
 

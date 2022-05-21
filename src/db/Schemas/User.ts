@@ -1,13 +1,12 @@
 import { ObjectId } from "mongodb";
+import Chronological from "./Chronological";
 
-interface User {
+interface User extends Chronological {
     _id?: ObjectId;
+    email?: string;
     password?: string;
     uplinkID?: ObjectId;
-    roleID?: number;
-
-    createdAt?: Date;
-    updatedAt?: Date;
+    roleID?: ObjectId;
 }
 
 export default User;

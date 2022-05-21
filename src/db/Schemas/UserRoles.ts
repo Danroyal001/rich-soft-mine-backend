@@ -1,11 +1,11 @@
 import { ObjectId } from "mongodb";
+import Chronological from "./Chronological";
 
-interface UserRoles {
+export type RoleName = 'Admin' | 'RSM Vendor' | 'Regular' | 'Generic' | 'Invalid';
+
+interface UserRoles extends Chronological {
     _id?: ObjectId;
-    name?: 'Admin' | 'RSM Vendor' | 'Regular' | 'Generic';
-
-    createdAt?: Date;
-    updatedAt?: Date;
+    name?: RoleName;
 }
 
 export default UserRoles;

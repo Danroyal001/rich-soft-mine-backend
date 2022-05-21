@@ -1,13 +1,11 @@
 import { ObjectId } from "mongodb";
+import Chronological from "./Chronological";
 
-interface DailyTask {
+interface DailyTask extends Chronological {
     _id?: ObjectId;
     name?: string;
     description?: string;
     taskBannerURL?: string;
-
-    createdAt?: Date;
-    updatedAt?: Date;
 };
 
 export default DailyTask;
