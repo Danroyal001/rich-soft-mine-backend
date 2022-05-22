@@ -4,10 +4,14 @@
   "description": "",
   "main": "./src/index.ts",
   "scripts": {
-    "build": "rm -rf ./dist && tsc",
+    "build": "npm run clean && tsc",
     "start": "ts-node ./src/index.ts --watch",
     "nodemon": "nodemon",
     "start:prod": "npm run build && node ./dist/index.js",
+    "prod": "npm run start:prod",
+    "production": "npm run prod",
+    "dist": "npm run prod",
+    "clean": "rm -rf ./dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

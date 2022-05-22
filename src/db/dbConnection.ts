@@ -4,8 +4,6 @@ import 'dotenv/config';
 
 const MONGO_ATLAS_PASSWORD = process.env.MONGO_ATLAS_PASSWORD;
 
-console.log('MONGO_ATLAS_PASSWORD: ', MONGO_ATLAS_PASSWORD);
-
 const uri = `mongodb+srv://richSoftMine:${MONGO_ATLAS_PASSWORD}@richsoftmine.xfbjl.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
     // useNewUrlParser: true,
