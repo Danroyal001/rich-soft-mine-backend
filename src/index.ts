@@ -18,6 +18,8 @@ import getUserRoles from './db/functions/getUserRoles';
 import getRoleForUser from './util/getRoleForUser';
 import setUserRole from './db/functions/setUserRole';
 import createRole from './db/functions/createRole';
+import updateRole from './db/functions/updateRole';
+import deleteRole from './db/functions/deleteRole';
 // import http from 'http';
 // import https from 'https';
 
@@ -147,12 +149,12 @@ app.post('/create-role', async (req, res) => {
         .json(await createRole(JSON.parse(req.body)));
 });
 
-app.post('/update-role', async () => {
-    // 
+app.post('/update-role/:role_id', async (req, res) => {
+    return res.json(await updateRole(req.params.role_id, JSON.parse(req.body.roleData)));
 });
 
-app.delete('/delete-role', async () => {
-    // 
+app.delete('/delete-role/:role_id', async (req, res) => {
+    return res.json(await deleteRole(req.params.role_id));
 });
 // end: role management
 
