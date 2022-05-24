@@ -5,6 +5,9 @@
   "main": "./src/index.ts",
   "scripts": {
     "build": "npm run clean && tsc",
+    "live": "npm run nodemon",
+    "dev": "npm run nodemon",
+    "watch": "npm run nodemon",
     "start": "ts-node ./src/index.ts --watch",
     "nodemon": "nodemon",
     "start:prod": "npm run build && node ./dist/index.js",

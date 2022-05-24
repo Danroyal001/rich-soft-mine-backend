@@ -1,21 +1,20 @@
 import { ObjectId } from "mongodb";
-import transactions from "../collections/Transaction";
+import getUserTransactions from "./getUserTransactions";
 
 const getUserBalance = async (user_id: string | ObjectId) => {
-    const outgoingTransactions = await (await transactions()).find({ fromUser: new ObjectId(user_id) }).toArray();
-    const incomingTransactions = await (await transactions()).find({ touser: new ObjectId(user_id) }).toArray();
+    const { outgoingTransactions, incomingTransactions } =
+        await getUserTransactions(new ObjectId(user_id));
 
-    const totalIncomingDebit = 0;
-    const totalIncomingCredit = 0;
-    const totalIncoming = totalIncomingCredit - totalIncomingDebit;
+    const outgoingBalance = (await outgoingTransactions)
+        .map((transaction) => transaction.amount_in_naira)!
+        .reduce((a, b) => a! + b!)!;
+    const incomingBalance = (await incomingTransactions)
+        .map((transaction) => transaction.amount_in_naira)!
+        .reduce((a, b) => a! + b!)!;
 
-    const totalOutgoingDebit = 0;
-    const totalOutgoingCredit = 0;
-    const totalOutgoing = totalOutgoingCredit - totalOutgoingDebit;
+    const totalBalance = incomingBalance - outgoingBalance;
 
-    const total = totalIncoming + totalOutgoing;
-
-    return total;
+    return totalBalance;
 };
 
 export default getUserBalance;

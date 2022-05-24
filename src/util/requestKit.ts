@@ -1,12 +1,31 @@
 import { NextFunction, Request, Response } from "express";
 
-const requestSafetyKit = {
-    handleRequestSafely(
+const requestKit = {
+
+    routes: {} as Record<string, {
+        'method': string,
+    }>,
+
+    addRouteToRoutes(req: Request) {
+        const url = req.url;
+        const method = req.method.toUpperCase();
+
+        if (!this.routes[url]) {
+            this.routes[url] = {
+                method
+            }
+        }
+    },
+
+    async handleRequestSafely(
         req: Request,
         res: Response,
         next: NextFunction,
         requestCallback: Function
     ) {
+
+        this.addRouteToRoutes(req);
+
         try {
             requestCallback();
         } catch (error) {
@@ -27,6 +46,6 @@ const requestSafetyKit = {
     },
 };
 
-export const { handleRequestSafely } = requestSafetyKit;
+export const { handleRequestSafely } = requestKit;
 
-export default requestSafetyKit;
+export default requestKit;

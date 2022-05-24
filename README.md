@@ -1,13 +1,13 @@
 # richSoftMine-Backend
 
-TOo run start the server in development mode, run
+To run start the server in development mode, use this command
 
 ```sh
 npm run nodemon
 ```
 
-To start the server in production mode, run
+To start the server in production mode, use this command
 
-```sn
+```sh
 npm run start:prod
 ```
