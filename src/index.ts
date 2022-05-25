@@ -336,10 +336,12 @@ app.get("/get-sponsored-advert/:advert_id", async (req, res, next) => {
 
 // --
 
-app.get("/routes", (_, res) => {
-    return res.status(200).json({
-        status: 200,
-        routes: (() => requestKit.routes)() || {},
+app.get("/routes", (req, res, next) => {
+    return requestKit.handleRequestSafely(req, res, next, async () => {
+        return res.status(200).json({
+            status: 200,
+            routes: (() => requestKit.routes)() || {},
+        });
     });
 });
 
