@@ -1,20 +1,30 @@
 import { WithId } from "mongodb";
+import hashPassword from "../../util/hashPassword";
 import users from "../collections/User";
 import User from "../Schemas/User";
 
 const createUser = async (properties: User) => {
-    let userExists = await (await users()).findOne({ email: properties.email! })
+    let userExists = await (await users()).findOne({ email: properties.email! })!;
 
-    const response: { alreadyExists?: boolean; user?: WithId<User> | User } = {}
+    console.log(userExists);
+
+    const response: { alreadyExists?: boolean; user?: WithId<User> | User } = {};
 
     if (userExists) {
         response.alreadyExists = true;
         response.user = void 0;
+        console.log('user already exists: ', response);
+
+        throw new Error('User already exists');
     }
 
-    const insertedUser = await (await users()).insertOne(properties);
+    if (properties.password) {
+        properties!.password! = await hashPassword(properties!.password!);
+    }
 
-    const user = await (await users()).findOne({ _id: insertedUser.insertedId });
+    const insertedUser = await (await users()).insertOne(properties)!;
+
+    const user = await (await users()).findOne({ _id: insertedUser.insertedId })!;
 
     response.alreadyExists = false;
     response.user = user!;

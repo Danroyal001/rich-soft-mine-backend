@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 
 const requestKit = {
-
-    routes: {} as Record<string, {
-        'method': string,
-    }>,
+    routes: {} as Record<
+        string,
+        {
+            method: string;
+        }
+    >,
 
     addRouteToRoutes(req: Request) {
         const url = req.url;
@@ -12,8 +14,8 @@ const requestKit = {
 
         if (!this.routes[url]) {
             this.routes[url] = {
-                method
-            }
+                method,
+            };
         }
     },
 
@@ -23,21 +25,21 @@ const requestKit = {
         next: NextFunction,
         requestCallback: Function
     ) {
-
         this.addRouteToRoutes(req);
 
         try {
-            requestCallback();
+            await requestCallback();
         } catch (error) {
-            const ERROR_NOTICE = "Oops, an error occurred on the server!";
-            console.error(ERROR_NOTICE, '\n - ', error);
+            const ERROR_NOTICE = `Oops, an error occurred on the server!:  ${error}`;
+            console.error(ERROR_NOTICE);
 
-            if (req.xhr)
+            if (req.xhr) {
                 res.status(500).json({
                     status: 500,
                     message: ERROR_NOTICE,
                     error,
                 });
+            }
 
             res.status(500).send(ERROR_NOTICE);
 

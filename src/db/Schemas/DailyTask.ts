@@ -5,7 +5,10 @@ interface DailyTask extends Chronological {
     _id?: ObjectId;
     name?: string;
     description?: string;
-    taskBannerURL?: string;
+    bannerURL?: string;
+    points: number;
+
+    doneBy: ObjectId[];
 };
 
 export default DailyTask;

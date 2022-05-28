@@ -4,18 +4,16 @@ import dbConnection from "./db/dbConnection";
 import getUsers from "./db/functions/getUsers";
 import users from "./db/collections/User";
 import { ObjectId } from "mongodb";
-import extractUsernameAndPassword from "./util/extractUsernameAndPassword";
-import getCurrentUser from "./db/functions/getCurrentUser";
 import createUser from "./db/functions/createUser";
 import updateUser from "./db/functions/updateUser";
 import getUserByID from "./db/functions/getUserByID";
 import deleteUser from "./db/functions/deleteUser";
 import getUserProfile from "./db/functions/getUserProfile";
 import fluidQuery from "./util/fluidQuery";
-import User from "./db/Schemas/User";
+import User, { UserTierCommisions } from "./db/Schemas/User";
 import updateUserProfile from "./db/functions/updateUserProfile";
 import getUserRoles from "./db/functions/getUserRoles";
-import getRoleForUser from "./util/getRoleForUser";
+import getRoleForUser from "./db/functions/getRoleForUser";
 import setUserRole from "./db/functions/setUserRole";
 import createRole from "./db/functions/createRole";
 import updateRole from "./db/functions/updateRole";
@@ -30,6 +28,11 @@ import debitUser from "./db/functions/debitUser";
 import credituser from "./db/functions/creditUser";
 import getUserUplink from "./db/functions/getUserUplink";
 import getUserDownlinks from "./db/functions/getUserDownlinks";
+import createDailyTask from "./db/functions/createDailyTask";
+import listDailyTasks from "./db/functions/listDailyTasks";
+import getDailyTaskByID from "./db/functions/getDailyTaskByID";
+import getCurrentUser from "./util/authUtil/getCurrentUser";
+import cors from 'cors';
 // import http from 'http';
 // import https from 'https';
 
@@ -46,6 +49,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.text());
 app.use(express.json());
+app.use(cors());
 
 app.use((req, _, next) => {
     console.log(
@@ -73,6 +77,18 @@ app.get("/test-db-connection", async (_, res) => {
 
 // --
 
+app.post("/generate-bearer-token", async (req, res, next) => requestKit.handleRequestSafely(req, res, next, async () => {
+    const { email, password } = JSON.parse(req.body);
+    const rawToken = `${email}:${password}`;
+    const token = Buffer.from(rawToken).toString("base64");
+
+    return res.status(200).json({
+        token
+    });
+}));
+
+// --
+
 // begin: user mamanagement
 app.get("/users", async (req, res) => {
     return res.status(200).json({
@@ -88,22 +104,38 @@ app.get("/get-user/:user_id", async (req, res) => {
     });
 });
 
-app.get("/current-user", async (req, res) => {
-    const { username, password } = extractUsernameAndPassword(req);
-    const currentuser = await getCurrentUser(username, password);
+app.get("/current-user", async (req, res, next) => requestKit.handleRequestSafely(req, res, next, async () => {
+    const currentUser = await getCurrentUser(req);
 
     return res.status(200).json({
-        user: currentuser,
+        user: currentUser,
     });
-});
+}));
 
-app.post("/create-user", async (req, res) => {
-    const user = await createUser(req.body);
+app.post("/create-user", async (req, res, next) => requestKit.handleRequestSafely(req, res, next, async () => {
+    const {
+        email,
+        password,
+        uplinkID,
+        roleID,
+        profile,
+        tier,
+    } = req.body;
+    const createdAt = new Date;
+    const user = await createUser({
+        email,
+        password,
+        uplinkID,
+        roleID,
+        profile,
+        tier,
+        createdAt,
+    });
 
     return res.status(200).json({
         user,
     });
-});
+}));
 
 app.post("/update-user/:user_id", async (req, res) => {
     const updated = updateUser(
@@ -133,9 +165,25 @@ app.get("/get-user-profile/:user_id", async (req, res) => {
 });
 
 app.post("/update-user-profile/:user_id", async (req, res) => {
+    const {
+        updatedAt,
+        email,
+        password,
+        uplinkID,
+        tier,
+        roleID,
+    } = req.body;
+
     return res
         .status(200)
-        .json(await updateUserProfile(req.params.user_id, JSON.parse(req.body)));
+        .json(await updateUserProfile(req.params.user_id, {
+            updatedAt,
+            email,
+            password,
+            uplinkID,
+            tier,
+            roleID,
+        }));
 });
 // end: profile management
 
@@ -161,7 +209,20 @@ app.post("/set-user-role/:user_id/:role_id", async (req, res) => {
 });
 
 app.post("/create-role", async (req, res) => {
-    return res.status(200).json(await createRole(JSON.parse(req.body)));
+
+    const {
+        _id,
+        name,
+    } = req.body;
+
+    const createdAt = new Date;
+    const updatedAt = new Date;
+    return res.status(200).json(await createRole({
+        createdAt,
+        _id,
+        name,
+        updatedAt
+    }));
 });
 
 app.post("/update-role/:role_id", async (req, res) => {
@@ -265,29 +326,39 @@ app.get("/get-user-downlinks/:user_id", async (req, res, next) => {
 // begin: daily tasks
 app.post("/create-daily-task", async (req, res, next) => {
     return requestKit.handleRequestSafely(req, res, next, async () => {
-        //
+        const { name, description, points, bannerURL } = JSON.parse(req.body);
+
+        return res.status(200).json({
+            successful: createDailyTask(name, description, Number(points), bannerURL),
+        })
     });
 });
 
-app.get("/list-daily-tasks", async (req, res, next) => {
+app.get("/list-daily-tasks/:timestamp", async (req, res, next) => {
     return requestKit.handleRequestSafely(req, res, next, async () => {
-        //
+        const { createdAt } = JSON.parse(req.params.timestamp);
+
+        return res.status(200).json({
+            tasks: await listDailyTasks(new Date(Number(createdAt))),
+        });
     });
 });
 
 app.get("/get-daily-task/:task_id", async (req, res, next) => {
     return requestKit.handleRequestSafely(req, res, next, async () => {
-        //
+        return res.status(200).json({
+            task: await getDailyTaskByID(req.params.task_id),
+        });
     });
 });
 
-app.post("/execute-daily-task", async (req, res, next) => {
+app.post("/execute-daily-task/:task_id", async (req, res, next) => {
     return requestKit.handleRequestSafely(req, res, next, async () => {
         //
     });
 });
 
-app.get("/get-executed-daily-tasks:user_id", async (req, res, next) => {
+app.get("/get-executed-daily-tasks/:user_id", async (req, res, next) => {
     return requestKit.handleRequestSafely(req, res, next, async () => {
         //
     });
@@ -390,6 +461,20 @@ app.all("/error", (req, res, next) =>
 
 // --
 
+app.post('/seed-db', async () => {
+    // 
+});
+
+// --
+
+app.get('/commission-ratio', async (req, res, next) => requestKit.handleRequestSafely(req, res, next, async () => {
+    res.status(200).json({
+        ratios: UserTierCommisions
+    })
+}));
+
+// --
+
 app.use((req, res) => {
     if (!req.complete) {
         const NOT_FOUND_MESSAGE = "404 - Route not found";
@@ -402,12 +487,6 @@ app.use((req, res) => {
 
         return res.status(404).send(NOT_FOUND_MESSAGE);
     }
-});
-
-// --
-
-app.post('/seed-db', async () => {
-    // 
 });
 
 // --
