@@ -45,6 +45,8 @@ const requestKit = {
 
             next(error);
         }
+
+        if (req.complete) console.log('response sent');
     },
 };
 

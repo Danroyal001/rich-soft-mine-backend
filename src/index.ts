@@ -31,8 +31,10 @@ import getUserDownlinks from "./db/functions/getUserDownlinks";
 import createDailyTask from "./db/functions/createDailyTask";
 import listDailyTasks from "./db/functions/listDailyTasks";
 import getDailyTaskByID from "./db/functions/getDailyTaskByID";
+import generateBearerToken from "./db/functions/generateBearerToken";
 import getCurrentUser from "./util/authUtil/getCurrentUser";
-import cors from 'cors';
+import cors from "cors";
+import authenticate from "./db/functions/authenticate";
 // import http from 'http';
 // import https from 'https';
 
@@ -50,6 +52,8 @@ app.use(express.json());
 app.use(express.text());
 app.use(express.json());
 app.use(cors());
+
+// --
 
 app.use((req, _, next) => {
     console.log(
@@ -71,71 +75,114 @@ app.get("/", (req, res, next) =>
 app.get("/test-db-connection", async (_, res) => {
     const conn = await dbConnection();
     return res.status(200).json({
+        status: 200,
         db: conn.db.databaseName,
     });
 });
 
 // --
 
-app.post("/generate-bearer-token", async (req, res, next) => requestKit.handleRequestSafely(req, res, next, async () => {
-    const { email, password } = JSON.parse(req.body);
-    const rawToken = `${email}:${password}`;
-    const token = Buffer.from(rawToken).toString("base64");
+app.post("/generate-bearer-token", async (req, res, next) =>
+    requestKit.handleRequestSafely(req, res, next, async () => {
+        const { email, password } = JSON.parse(req.body);
 
-    return res.status(200).json({
-        token
-    });
-}));
+        const token = generateBearerToken(email, password);
+
+        return res.status(200).json({
+            status: 200,
+            token,
+        });
+    })
+);
+
+// --
+
+// begin: user authentication
+app.post("/login", async (req, res, next) =>
+    requestKit.handleRequestSafely(req, res, next, async () => {
+        const { email, password } = req.body;
+        const user = await authenticate(email, password);
+
+        if (!user) {
+            return res.status(400).json({
+                status: 400,
+                message: "User does not exist!",
+            });
+        }
+
+        const token = await generateBearerToken(email, password);
+
+        return res.status(200).json({
+            status: 200,
+            token,
+            user,
+        });
+    })
+);
+
+app.post("/register", async (req, res, next) =>
+    requestKit.handleRequestSafely(req, res, next, async () => {
+        //
+    })
+);
+// end: user authentication
 
 // --
 
 // begin: user mamanagement
 app.get("/users", async (req, res) => {
     return res.status(200).json({
+        status: 200,
         users: await getUsers(req.query as any as User),
     });
 });
 
 app.get("/get-user/:user_id", async (req, res) => {
     return res.status(200).json({
+        status: 200,
         user: (await users()).find({
             _id: new ObjectId(req.params.user_id),
         }),
     });
 });
 
-app.get("/current-user", async (req, res, next) => requestKit.handleRequestSafely(req, res, next, async () => {
-    const currentUser = await getCurrentUser(req);
+app.get("/current-user", async (req, res, next) =>
+    requestKit.handleRequestSafely(req, res, next, async () => {
+        const currentUser = await getCurrentUser(req);
 
-    return res.status(200).json({
-        user: currentUser,
-    });
-}));
+        return res.status(200).json({
+            status: 200,
+            user: currentUser,
+        });
+    })
+);
 
-app.post("/create-user", async (req, res, next) => requestKit.handleRequestSafely(req, res, next, async () => {
-    const {
-        email,
-        password,
-        uplinkID,
-        roleID,
-        profile,
-        tier,
-    } = req.body;
-    const createdAt = new Date;
-    const user = await createUser({
-        email,
-        password,
-        uplinkID,
-        roleID,
-        profile,
-        tier,
-        createdAt,
-    });
+app.post("/register", async (req, res, next) =>
+    requestKit.handleRequestSafely(req, res, next, async () => {
+        //
+    })
+);
 
-    return res.status(200).json({
-        user,
-    });
-}));
+app.post("/create-user", async (req, res, next) =>
+    requestKit.handleRequestSafely(req, res, next, async () => {
+        const { email, password, uplinkID, roleID, profile, tier } = req.body;
+        const createdAt = new Date();
+        const user = await createUser({
+            email,
+            password,
+            uplinkID,
+            roleID,
+            profile,
+            tier,
+            createdAt,
+        });
+
+        return res.status(200).json({
+            status: 200,
+            user,
+        });
+    })
+);
 
 app.post("/update-user/:user_id", async (req, res) => {
     const updated = updateUser(
@@ -144,12 +191,14 @@ app.post("/update-user/:user_id", async (req, res) => {
     );
 
     return res.status(200).json({
+        status: 200,
         updated,
     });
 });
 
 app.delete("/delete-user/:user_id", async (req, res) => {
     return res.status(200).json({
+        status: 200,
         deleted: await deleteUser(new ObjectId(req.params.user_id)),
     });
 });
@@ -160,30 +209,25 @@ app.delete("/delete-user/:user_id", async (req, res) => {
 // begin: profile management
 app.get("/get-user-profile/:user_id", async (req, res) => {
     return res.status(200).json({
+        status: 200,
         profile: await getUserProfile(req.params.user_id)!,
     });
 });
 
 app.post("/update-user-profile/:user_id", async (req, res) => {
-    const {
-        updatedAt,
-        email,
-        password,
-        uplinkID,
-        tier,
-        roleID,
-    } = req.body;
+    const { updatedAt, email, password, uplinkID, tier, roleID } = req.body;
 
-    return res
-        .status(200)
-        .json(await updateUserProfile(req.params.user_id, {
+    return res.status(200).json(
+        await updateUserProfile(req.params.user_id, {
+            status: 200,
             updatedAt,
             email,
             password,
             uplinkID,
             tier,
             roleID,
-        }));
+        })
+    );
 });
 // end: profile management
 
@@ -192,47 +236,57 @@ app.post("/update-user-profile/:user_id", async (req, res) => {
 // begin: role management
 app.get("/get-user-roles", async (_, res) => {
     return res.status(200).json({
+        status: 200,
         roles: await getUserRoles(),
     });
 });
 
 app.get("/get-user-role/:user_id", async (req, res) => {
     return res.status(200).json({
+        status: 200,
         role: await getRoleForUser(req.params.user_id),
     });
 });
 
 app.post("/set-user-role/:user_id/:role_id", async (req, res) => {
     return res.status(200).json({
+        status: 200,
         successful: await setUserRole(req.params.user_id, req.params.role_id),
     });
 });
 
 app.post("/create-role", async (req, res) => {
+    const { _id, name } = req.body;
 
-    const {
-        _id,
-        name,
-    } = req.body;
-
-    const createdAt = new Date;
-    const updatedAt = new Date;
-    return res.status(200).json(await createRole({
-        createdAt,
-        _id,
-        name,
-        updatedAt
-    }));
+    const createdAt = new Date();
+    const updatedAt = new Date();
+    return res.status(200).json({
+        status: 200,
+        response: await createRole({
+            createdAt,
+            _id,
+            name,
+            updatedAt,
+        }),
+    });
 });
 
 app.post("/update-role/:role_id", async (req, res) => {
     return res
         .status(200)
-        .json(await updateRole(req.params.role_id, JSON.parse(req.body.roleData)));
+        .json({
+            status: 200,
+            response: await updateRole(
+                req.params.role_id,
+                JSON.parse(req.body.roleData)
+            ),
+        });
 });
 
 app.delete("/delete-role/:role_id", async (req, res) => {
-    return res.status(200).json(await deleteRole(req.params.role_id));
+    return res
+        .status(200)
+        .json({ status: 200, response: await deleteRole(req.params.role_id) });
 });
 // end: role management
 
@@ -242,6 +296,7 @@ app.delete("/delete-role/:role_id", async (req, res) => {
 app.get("/user-balance/:user_id", async (req, res, next) => {
     return requestKit.handleRequestSafely(req, res, next, async () => {
         return res.status(200).json({
+            status: 200,
             balance: await getUserBalance(req.params.user_id),
         });
     });
@@ -250,6 +305,7 @@ app.get("/user-balance/:user_id", async (req, res, next) => {
 app.get("/get-user-transactions/:user_id", async (req, res, next) => {
     return requestKit.handleRequestSafely(req, res, next, async () => {
         return res.status(200).json({
+            status: 200,
             transactions: await getUserTransactions(req.params.user_id),
         });
     });
@@ -260,6 +316,7 @@ app.post(
     async (req, res, next) => {
         return requestKit.handleRequestSafely(req, res, next, async () => {
             return res.status(200).json({
+                status: 200,
                 transactionDetails: await initiateTransaction(
                     req.params.initiating_user_id,
                     req.body.recipient_user_id,
@@ -274,25 +331,46 @@ app.post(
 
 app.post("/update-transaction/:transaction_id", async (req, res, next) => {
     return requestKit.handleRequestSafely(req, res, next, async () => {
-        return res.status(200).json(await updateTransactionData(req.params.transaction_id, JSON.parse(req.body)));
+        return res
+            .status(200)
+            .json({
+                status: 200,
+                response: await updateTransactionData(
+                    req.params.transaction_id,
+                    JSON.parse(req.body)
+                ),
+            });
     });
 });
 
 app.delete("/delete-transaction/:transaction_id", async (req, res, next) => {
     return requestKit.handleRequestSafely(req, res, next, async () => {
-        return res.status(200).json(await deleteTransaction(req.params.transaction_id));
+        return res
+            .status(200)
+            .json({
+                status: 200,
+                response: await deleteTransaction(req.params.transaction_id),
+            });
     });
 });
 
 app.get("/debit-user/:user_id/:amount_in_naira", async (req, res, next) => {
     return requestKit.handleRequestSafely(req, res, next, async () => {
-        return res.status(200).json(await debitUser(req.params.user_id, Number(req.params.amount_in_naira)));
+        return res
+            .status(200)
+            .json(
+                await debitUser(req.params.user_id, Number(req.params.amount_in_naira))
+            );
     });
 });
 
 app.get("/credit-user/:user_id/:amount_in_naira", async (req, res, next) => {
     return requestKit.handleRequestSafely(req, res, next, async () => {
-        return res.status(200).json(await credituser(req.params.user_id, Number(req.params.amount_in_naira)));
+        return res
+            .status(200)
+            .json(
+                await credituser(req.params.user_id, Number(req.params.amount_in_naira))
+            );
     });
 });
 // end: balance and transactions
@@ -308,15 +386,15 @@ app.get("/refer-user/:referrer_id", async (req, res, next) => {
 
 app.get("/get-user-uplink/:user_id", async (req, res, next) => {
     return requestKit.handleRequestSafely(req, res, next, async () => {
-        return res.status(200).json(await getUserUplink(req.params.user_id))
+        return res.status(200).json(await getUserUplink(req.params.user_id));
     });
 });
 
 app.get("/get-user-downlinks/:user_id", async (req, res, next) => {
     return requestKit.handleRequestSafely(req, res, next, async () => {
         return res.status(200).json({
-            downlinks: await getUserDownlinks(req.params.user_id)
-        })
+            downlinks: await getUserDownlinks(req.params.user_id),
+        });
     });
 });
 // end: referrals
@@ -330,7 +408,7 @@ app.post("/create-daily-task", async (req, res, next) => {
 
         return res.status(200).json({
             successful: createDailyTask(name, description, Number(points), bannerURL),
-        })
+        });
     });
 });
 
@@ -461,17 +539,21 @@ app.all("/error", (req, res, next) =>
 
 // --
 
-app.post('/seed-db', async () => {
-    // 
+app.post("/seed-db", async () => {
+    //
 });
 
 // --
 
-app.get('/commission-ratio', async (req, res, next) => requestKit.handleRequestSafely(req, res, next, async () => {
-    res.status(200).json({
-        ratios: UserTierCommisions
+app.get("/commission-ratio", async (req, res, next) =>
+    requestKit.handleRequestSafely(req, res, next, async () => {
+        res.header("Cache-COntrol", "stale-if-error");
+
+        res.status(200).json({
+            ratios: UserTierCommisions,
+        });
     })
-}));
+);
 
 // --
 
