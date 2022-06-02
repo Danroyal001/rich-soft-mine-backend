@@ -3,11 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const hashPassword_1 = __importDefault(require("../../util/hashPassword"));
-const User_1 = __importDefault(require("../collections/User"));
+const hashPassword = __importDefault(require("../../util/hashPassword"));
+const User = __importDefault(require("../collections/User"));
 const createUser = async (properties) => {
-    let userExists = await (await (0, User_1.default)()).findOne({ email: properties.email });
-    console.log(userExists);
+    let userExists = await (await (0, User.default)()).findOne({ email: properties.email });
+
     const response = {};
     if (userExists) {
         response.alreadyExists = true;
@@ -16,10 +16,10 @@ const createUser = async (properties) => {
         throw new Error('User already exists');
     }
     if (properties.password) {
-        properties.password = await (0, hashPassword_1.default)(properties.password);
+        properties.password = await (0, hashPassword.default)(properties.password);
     }
-    const insertedUser = await (await (0, User_1.default)()).insertOne(properties);
-    const user = await (await (0, User_1.default)()).findOne({ _id: insertedUser.insertedId });
+    const insertedUser = await (await (0, User.default)()).insertOne(properties);
+    const user = await (await (0, User.default)()).findOne({ _id: insertedUser.insertedId });
     response.alreadyExists = false;
     response.user = user;
     return response;

@@ -31,7 +31,7 @@ const requestKit = {
             next(error);
         }
         if (req.complete)
-            console.log('response sent');
+            console.log('response sent\n');
     },
 };
 exports.handleRequestSafely = requestKit.handleRequestSafely;
