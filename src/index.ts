@@ -57,21 +57,6 @@ app.get("/test-db-connection", async (_, res) => {
 
 // --
 
-app.post("/generate-bearer-token", async (req, res, next) =>
-    requestKit.handleRequestSafely(req, res, next, async () => {
-        const { email, password } = JSON.parse(req.body);
-
-        const token = generateBearerToken(email, password);
-
-        return res.status(200).json({
-            status: 200,
-            token,
-        });
-    })
-);
-
-// --
-
 // begin: user authentication
 app.post("/login", async (req, res, next) =>
     requestKit.handleRequestSafely(req, res, next, async () => {
