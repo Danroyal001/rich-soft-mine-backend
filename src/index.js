@@ -56,12 +56,14 @@ app.use((req, _, next) => {
     );
     return next();
 });
+// completed
 
 app.get("/", (req, res, next) =>
     requestKit.default.handleRequestSafely(req, res, next, () => {
         return res.send(SERVER_RUNNING_MESSAGE);
     })
 );
+// completed
 
 // --
 
@@ -72,6 +74,7 @@ app.get("/test-db-connection", async (_, res) => {
         db: conn.db.databaseName,
     });
 });
+// completed
 
 // --
 
@@ -101,6 +104,10 @@ app.post("/login", async (req, res, next) =>
 app.post("/register", async (req, res, next) =>
     requestKit.default.handleRequestSafely(req, res, next, async () => {
         const user = await createUser(req.body);
+        return res.status(200).json({
+            status: 200,
+            user,
+        });
     }));
 
 app.get("/current-user", async (req, res, next) =>
