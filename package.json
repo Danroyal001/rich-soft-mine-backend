@@ -2,26 +2,20 @@
   "name": "rich-soft-mine-backend",
   "version": "1.0.0",
   "description": "Backend Code for RichSoftMine",
-  "main": "./src/index.ts",
+  "main": "./src/index.js",
   "scripts": {
-    "build": "npm run clean && tsc",
     "live": "npm run nodemon",
     "dev": "npm run nodemon",
     "watch": "npm run nodemon",
-    "start": "ts-node ./src/index.ts --watch",
+    "start": "node ./src/index.js",
     "nodemon": "nodemon",
-    "start:prod": "npm run build && node ./dist/index.js",
-    "prod": "npm run start:prod",
-    "production": "npm run prod",
     "dist": "npm run prod",
-    "clean": "rm -rf ./dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://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@github.com/Danroyal001/rich-soft-mine-backend.git"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
