@@ -1,7 +1,8 @@
 "use strict";
 
-const hashPassword = __importDefault(require("../../util/hashPassword"));
-const User = __importDefault(require("../collections/User"));
+const { default: hashPassword } = require("../../util/hashPassword");
+const { default: User } = require("../collections/User");
+
 const createUser = async (properties) => {
     let userExists = await (await (0, User.default)()).findOne({ email: properties.email });
 

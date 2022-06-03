@@ -27,6 +27,7 @@ const authenticate = require("./db/functions/authenticate");
 const {
     default: createUser
 } = require("./db/functions/createUser");
+const { default: generateCouponCode } = require("./db/functions/generateCouponCode");
 const TIME_LABEL = "Server startup time";
 const PORT = Number(process.env.PORT) || 8080;
 
@@ -157,6 +158,25 @@ app.get("/get-user-downlinks/:user_id", async (req, res, next) => {
     });
 });
 // end: referrals
+
+// --
+
+// begin: coupon code management
+app.get("/generate-coupon-code/:seed_amount", async (req, res, next) => {
+    return requestKit.default.handleRequestSafely(req, res, next, async () => {
+        const seed_amount = Number(req.params.seed_amount);
+
+        if (isNaN(seed_amount)) {
+            seed_amount = Number(Object.keys(User.UserTierCommisions)[0]);
+        };
+
+        return res.status(200).json({
+            status: 200,
+            couponCode: await generateCouponCode(seed_amount),
+        });
+    });
+});
+// end: coupon code management
 
 // --
 

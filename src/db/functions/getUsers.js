@@ -8,4 +8,5 @@ const getUsers = async (query = {}) => {
     const _users = (await (0, User.default)()).find(query).toArray();
     return _users;
 };
+
 exports.default = getUsers;

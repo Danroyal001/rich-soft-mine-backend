@@ -1,5 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+
+const { ObjectId } = require('mongodb');
+const mongoose = require('mongoose')
+
 exports.UserTierCommisions = void 0;
 exports.UserTierCommisions = {
     3000: {
@@ -15,3 +19,13 @@ exports.UserTierCommisions = {
         referrer: 6000,
     },
 };
+
+const UserSchema = new mongoose.Schema({
+    _id: ObjectId,
+    email: String,
+    password: String,
+    roleID: String,
+    createdAt: Date
+});
+
+exports.default = UserSchema;
