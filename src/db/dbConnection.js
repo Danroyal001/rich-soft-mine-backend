@@ -29,7 +29,9 @@ const dbConnection = async () => {
         appName: 'richSoftMine',
         dbName: 'richSoftMine',
         autoCreate: true,
-        pass
+        // useNewUrlParser: true,
+        // useCreateIndex: true,
+        // useUnifiedTopology: true,
     });
 
     return {

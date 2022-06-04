@@ -22,6 +22,9 @@ const users = async () => {
 
     const UserModel = client.model('users', UserSchema);
 
+    const u = UserModel.findOne({email:'dan@g.c'});
+    u.to
+
     return UserModel;
 };
 
