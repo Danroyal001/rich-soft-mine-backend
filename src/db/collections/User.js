@@ -21,6 +21,8 @@ const users = async () => {
     } = await dbConnection();
 
     const UserModel = client.model('users', UserSchema);
+
+    return UserModel;
 };
 
 exports.default = users;

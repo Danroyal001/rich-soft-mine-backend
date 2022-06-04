@@ -1,19 +1,11 @@
 "use strict";
 
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : {
-        "default": mod
-    };
-};
-
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-const hashPassword = __importDefault(require("../../util/hashPassword"));
-const User = __importDefault(require("../collections/User"));
-
+const { default: hashPassword } = require("../../util/hashPassword");
+const { default: User } = require("../collections/User");
 
 const updateUser = async (oldUser, newUser) => {
     let user = await (await (0, User.default)()).findOne({

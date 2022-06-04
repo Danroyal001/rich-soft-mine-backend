@@ -1,18 +1,20 @@
 "use strict";
 
 const { default: hashPassword } = require("../../util/hashPassword");
-const { default: User } = require("../collections/User");
+const { default: users } = require("../collections/User");
 
 const createUser = async (properties) => {
-    let userExists = await (await (0, User.default)()).findOne({ email: properties.email });
+    let userExists = await (await users()).findOne({ email: properties.email });
 
     const response = {};
+
     if (userExists) {
         response.alreadyExists = true;
         response.user = void 0;
         console.log('user already exists: ', response);
         throw new Error('User already exists');
     }
+
     if (properties.password) {
         properties.password = await (0, hashPassword.default)(properties.password);
     }
