@@ -4,21 +4,17 @@ const { default: hashPassword } = require("../../util/hashPassword");
 const { default: users } = require("../collections/User");
 
 const createUser = async (properties) => {
-    let userExists = await (await users()).findOne({ email: properties.email });
-    let userExists = UserModel;
-
-    if (userExists) {
+    if (await (await users()).findOne({ email: properties.email }).exec()) {
         console.log('user already exists: ', response);
         throw new Error('User already exists');
     }
 
     if (properties.password) {
-        properties.password = await hashPassword.default(properties.password);
+        properties.password = await hashPassword(properties.password);
     }
 
-    const insertedUser = await (await users()).insertMany([properties]);
-    const user = await (await users()).findOne({ _id: insertedUser.insertedId });
+    const insertionResponse = await (await users()).insertMany([properties]);
 
-    return user;
+    return insertionResponse;
 };
 exports.default = createUser;

@@ -1,7 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
 const { ObjectId } = require('mongodb');
 
 const referralCodes = require('referral-codes');
 const { default: getUsers } = require('./getUsers');
+const { default: dateDifferenceInHours } = require('../../util/dateDifferenceInHours');
 
 const generateCouponCode = async (amount = 10_000) => {
     amount = Number(amount);

@@ -6,23 +6,27 @@ const mongoose = require("mongoose");
 
 exports.UserTierCommisions = void 0;
 exports.UserTierCommisions = {
-  3000: {
-    referred: 1500,
-    referrer: 2000,
-  },
-  5000: {
-    referred: 2500,
-    referrer: 3000,
-  },
-  10000: {
-    referred: 6000,
-    referrer: 6000,
-  },
+    3000: {
+        referred: 1500,
+        referrer: 2000,
+    },
+    5000: {
+        referred: 2500,
+        referrer: 3000,
+    },
+    10000: {
+        referred: 6000,
+        referrer: 6000,
+    },
 };
 
 const UserSchema = new mongoose.Schema({
     _id: {
         type: mongoose.Schema.Types.ObjectId,
+    },
+    uplinkId: {
+        type: mongoose.Schema.Types.ObjectId,
+        default: new mongoose.Schema.Types.ObjectId('629759aa3d8465f85763486e'),
     },
     email: String,
     password: String,

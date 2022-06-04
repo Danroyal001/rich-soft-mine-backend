@@ -34,6 +34,8 @@ const dbConnection = async () => {
         // useUnifiedTopology: true,
     });
 
+    client.Promise = Promise;
+
     return {
         db: client.connection.db,
         client,

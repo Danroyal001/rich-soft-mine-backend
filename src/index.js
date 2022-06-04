@@ -10,8 +10,6 @@ const {
 } = require("./db/functions/getUsers");
 const User = require("./db/Schemas/User");
 const requestKit = require("./util/requestKit");
-const getUserUplink =
-    require("./db/functions/getUserUplink");
 const getUserDownlinks =
     require("./db/functions/getUserDownlinks");
 const generateBearerToken =
