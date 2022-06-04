@@ -2,12 +2,7 @@
 
 Object.defineProperty(exports, "__esModule", { value: true });
 
-<<<<<<< HEAD
-const { ObjectId } = require("mongodb");
 const mongoose = require("mongoose");
-=======
-const mongoose = require('mongoose')
->>>>>>> da6c78cdf2b92f7713307c5bb7404348f8fe15ab
 
 exports.UserTierCommisions = void 0;
 exports.UserTierCommisions = {
@@ -26,21 +21,6 @@ exports.UserTierCommisions = {
 };
 
 const UserSchema = new mongoose.Schema({
-<<<<<<< HEAD
-  _id: ObjectId,
-  email: String,
-  password: String,
-  roleID: String,
-  createdAt: Date,
-  currentBal: {
-    type: Number,
-    default: 0,
-  },
-  userCoupon: {
-    type: String,
-    required: true,
-  },
-=======
     _id: {
         type: mongoose.Schema.Types.ObjectId,
     },
@@ -81,7 +61,6 @@ const UserSchema = new mongoose.Schema({
         type: Date,
         default: Date.now(),
     }
->>>>>>> da6c78cdf2b92f7713307c5bb7404348f8fe15ab
 });
 
 exports.default = UserSchema;
