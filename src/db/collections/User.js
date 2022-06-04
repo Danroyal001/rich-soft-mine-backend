@@ -12,15 +12,17 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-const dbConnection = __importDefault(require("../dbConnection"));
-
-const UserModel = mongoose.model('users', UserSchema);
-exports.UserModel = UserModel;
+const { default: dbConnection } = require("../dbConnection");
 
 const users = async () => {
     const {
-        db
-    } = await dbConnection.default();
-    return db.collection('users');
+        db,
+        client
+    } = await dbConnection();
+
+    const UserModel = client.model('users', UserSchema);
+
+    return UserModel;
 };
+
 exports.default = users;

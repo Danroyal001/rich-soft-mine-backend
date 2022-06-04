@@ -4,9 +4,7 @@ const express = require("express");
 require("dotenv/config");
 const dbConnection = require("./db/dbConnection");
 const updateUser = require("./db/functions/updateUser");
-const {
-    ObjectId
-} = require("mongodb");
+
 const {
     default: getUsers
 } = require("./db/functions/getUsers");
@@ -24,6 +22,8 @@ const getCurrentUser =
 
 const cors = require("cors");
 const authenticate = require("./db/functions/authenticate");
+const mongoose = require('mongoose');
+
 const {
     default: createUser
 } = require("./db/functions/createUser");
@@ -31,6 +31,7 @@ const { default: generateCouponCode } = require("./db/functions/generateCouponCo
 const TIME_LABEL = "Server startup time";
 const PORT = Number(process.env.PORT) || 8080;
 
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 console.time(TIME_LABEL);
 
@@ -72,7 +73,7 @@ app.get("/test-db-connection", async (_, res) => {
     const conn = await dbConnection.default();
     return res.status(200).json({
         status: 200,
-        db: conn.db.databaseName,
+        db: databaseName,
     });
 });
 // completed
