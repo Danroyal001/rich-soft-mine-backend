@@ -124,36 +124,7 @@ app.post("/register", async (req, res, next) =>
             // 
         }
 
-        const {
-            _id,
-            uplinkId,
-            email,
-            password,
-            firstName,
-            otherNames,
-            lastName,
-            roleID,
-            RSMPoints,
-            referralEarnings,
-            createdAt,
-            updatedAt,
-        } = req.body;
-
-        const user = await createUser({
-            _id: new mongoose.Schema.Types.ObjectId(_id),
-            uplinkId: uplinkId ? new mongoose.Schema.Types.ObjectId(uplinkId) : new mongoose.Schema.Types.ObjectId('629759aa3d8465f85763486e'),
-            email,
-            // password must be raw/unhashed
-            password,
-            firstName,
-            otherNames,
-            lastName,
-            roleID,
-            RSMPoints: Number(RSMPoints),
-            referralEarnings: Number(referralEarnings),
-            createdAt: new Date(createdAt) || new Date(),
-            updatedAt: new Date(updatedAt) || new Date(),
-        });
+        const user = await createUser(req.body);
 
         return res.status(200).json({
             status: 200,
@@ -226,6 +197,7 @@ app.get("/generate-coupon-code/:seed_amount", async (req, res, next) => {
         });
     });
 });
+// completed
 // end: coupon code management
 
 // --

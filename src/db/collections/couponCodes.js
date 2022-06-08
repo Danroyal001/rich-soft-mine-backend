@@ -13,7 +13,7 @@ const couponCodes = async () => {
         client
     } = await dbConnection();
 
-    const CouponCodeModel = client.model('couponCodes', CouponCodeSchema);
+    const CouponCodeModel = client.model('couponCodes', CouponCodeSchema, 'couponCodes');
 
     return CouponCodeModel;
 };

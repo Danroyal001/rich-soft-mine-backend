@@ -11,8 +11,9 @@ const mongoose = require('mongoose');
 const createUser = async (properties) => {
 
     const {
-        __id,
-        _uplinkId,
+        _id,
+        uplinkId,
+        couponCode,
         email,
         password,
         firstName,
@@ -24,9 +25,6 @@ const createUser = async (properties) => {
         _createdAt,
         _updatedAt,
     } = properties;
-
-    const _id = new mongoose.Schema.Types.ObjectId(__id);
-    const uplinkId = _uplinkId ? new mongoose.Schema.Types.ObjectId(_uplinkId) : new mongoose.Schema.Types.ObjectId('629759aa3d8465f85763486e');
     const RSMPoints = Number(_RSMPoints);
     const referralEarnings = Number(_referralEarnings);
     const createdAt = new Date(_createdAt) || new Date();
@@ -47,6 +45,7 @@ const createUser = async (properties) => {
 
     await (await users()).insertMany([{
         _id,
+        couponCode,
         uplinkId,
         email,
         password,

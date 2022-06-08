@@ -7,6 +7,14 @@ const mongoose = require("mongoose");
 const CouponCodeSchema = new mongoose.Schema({
     _id: {
         type: mongoose.Schema.Types.ObjectId,
+        unique: true,
+        index: true,
+    },
+    couponCode: {
+        type: String,
+        required: true,
+        unique: true,
+        index: true,
     },
     createdAt: {
         type: Date,
