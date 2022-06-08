@@ -27,6 +27,7 @@ const {
 } = require("./db/functions/createUser");
 const { default: generateCouponCode } = require("./db/functions/generateCouponCode");
 const TIME_LABEL = "Server startup time";
+
 const PORT = Number(process.env.PORT) || 8080;
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
@@ -68,7 +69,11 @@ app.get("/", (req, res, next) =>
 // --
 
 app.get("/test-db-connection", async (_, res) => {
-    const conn = await dbConnection.default();
+    const {
+        db: {
+            databaseName
+        }
+    } = await dbConnection.default();
     return res.status(200).json({
         status: 200,
         db: databaseName,
@@ -85,7 +90,9 @@ app.post("/login", async (req, res, next) =>
             email,
             password
         } = req.body;
-        const user = await (0, authenticate.default)(email, password);
+
+        const user = await authenticate.default(email, password);
+
         if (!user) {
             return res.status(400).json({
                 status: 400,

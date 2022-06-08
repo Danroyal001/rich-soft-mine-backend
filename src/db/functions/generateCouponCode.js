@@ -3,7 +3,9 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-const { ObjectId } = require('mongodb');
+const mongoose = require('mongoose');
+
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const referralCodes = require('referral-codes');
 const { default: getUsers } = require('./getUsers');
