@@ -24,7 +24,9 @@ const generateCouponCode = async (amount = 10_000) => {
             count: 1,
             charset: referralCodes.charset('numbers'),
         });
+
         let coupon = `${_coupon}-${amount}`
+        
         if (coupon.length < 12) {
             const remainder = 12 - coupon.length;
             coupon = `${'0'.repeat(remainder)}${coupon}`;

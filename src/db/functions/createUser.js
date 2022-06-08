@@ -1,10 +1,42 @@
 "use strict";
 
-const { default: hashPassword } = require("../../util/hashPassword");
-const { default: users } = require("../collections/User");
+const {
+    default: hashPassword
+} = require("../../util/hashPassword");
+const {
+    default: users
+} = require("../collections/User");
+const mongoose = require('mongoose');
 
 const createUser = async (properties) => {
-    if (await (await users()).findOne({ email: properties.email }).exec()) {
+
+    const {
+        __id,
+        _uplinkId,
+        email,
+        password,
+        firstName,
+        otherNames,
+        lastName,
+        roleID,
+        _RSMPoints,
+        _referralEarnings,
+        _createdAt,
+        _updatedAt,
+    } = properties;
+
+    const _id = new mongoose.Schema.Types.ObjectId(__id);
+    const uplinkId = _uplinkId ? new mongoose.Schema.Types.ObjectId(_uplinkId) : new mongoose.Schema.Types.ObjectId('629759aa3d8465f85763486e');
+    const RSMPoints = Number(_RSMPoints);
+    const referralEarnings = Number(_referralEarnings);
+    const createdAt = new Date(_createdAt) || new Date();
+    const updatedAt = new Date(_updatedAt) || new Date();
+
+    const alreadyExists = await (await users()).findOne({ email }).exec();
+
+    console.log('alreadyExists: ', alreadyExists);
+
+    if (alreadyExists) {
         console.log('user already exists: ', response);
         throw new Error('User already exists');
     }
@@ -13,8 +45,21 @@ const createUser = async (properties) => {
         properties.password = await hashPassword(properties.password);
     }
 
-    const insertionResponse = await (await users()).insertMany([properties]);
+    await (await users()).insertMany([{
+        _id,
+        uplinkId,
+        email,
+        password,
+        firstName,
+        otherNames,
+        lastName,
+        roleID,
+        RSMPoints,
+        referralEarnings,
+        createdAt,
+        updatedAt,
+    }]);
 
-    return insertionResponse;
+    return true;
 };
 exports.default = createUser;

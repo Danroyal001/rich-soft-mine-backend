@@ -19,7 +19,7 @@ const getCurrentUser =
 
 
 const cors = require("cors");
-const authenticate = require("./db/functions/authenticate");
+const { default: authenticate } = require("./db/functions/authenticate");
 const mongoose = require('mongoose');
 
 const {
@@ -91,7 +91,7 @@ app.post("/login", async (req, res, next) =>
             password
         } = req.body;
 
-        const user = await authenticate.default(email, password);
+        const user = await authenticate(email, password);
 
         if (!user) {
             return res.status(400).json({
@@ -99,6 +99,7 @@ app.post("/login", async (req, res, next) =>
                 message: "User does not exist!",
             });
         }
+
         const token = await (0, generateBearerToken.default)(email, password);
         return res.status(200).json({
             status: 200,
@@ -110,7 +111,50 @@ app.post("/login", async (req, res, next) =>
 
 app.post("/register", async (req, res, next) =>
     requestKit.default.handleRequestSafely(req, res, next, async () => {
-        const user = await createUser(req.body);
+
+        try {
+            const _user = await authenticate(email, password);
+            if (_user) {
+                return res.status(400).json({
+                    status: 400,
+                    message: "User already exists!",
+                });
+            }
+        } catch (error) {
+            // 
+        }
+
+        const {
+            _id,
+            uplinkId,
+            email,
+            password,
+            firstName,
+            otherNames,
+            lastName,
+            roleID,
+            RSMPoints,
+            referralEarnings,
+            createdAt,
+            updatedAt,
+        } = req.body;
+
+        const user = await createUser({
+            _id: new mongoose.Schema.Types.ObjectId(_id),
+            uplinkId: uplinkId ? new mongoose.Schema.Types.ObjectId(uplinkId) : new mongoose.Schema.Types.ObjectId('629759aa3d8465f85763486e'),
+            email,
+            // password must be raw/unhashed
+            password,
+            firstName,
+            otherNames,
+            lastName,
+            roleID,
+            RSMPoints: Number(RSMPoints),
+            referralEarnings: Number(referralEarnings),
+            createdAt: new Date(createdAt) || new Date(),
+            updatedAt: new Date(updatedAt) || new Date(),
+        });
+
         return res.status(200).json({
             status: 200,
             user,
