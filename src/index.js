@@ -7,7 +7,7 @@ const updateUser = require("./db/functions/updateUser");
 
 const { default: getUsers } = require("./db/functions/getUsers");
 const User = require("./db/Schemas/User");
-const requestKit = require("./util/requestKit");
+const { default: requestKit } = require("./util/requestKit");
 const getUserDownlinks = require("./db/functions/getUserDownlinks");
 const generateBearerToken = require("./db/functions/generateBearerToken");
 const getCurrentUser = require("./util/authUtil/getCurrentUser");
@@ -52,7 +52,7 @@ app.use((req, _, next) => {
 // completed
 
 app.get("/", (req, res, next) =>
-    requestKit.default.handleRequestSafely(req, res, next, () => {
+    requestKit.handleRequestSafely(req, res, next, () => {
         return res.send(SERVER_RUNNING_MESSAGE);
     })
 );
@@ -75,7 +75,7 @@ app.get("/test-db-connection", async (_, res) => {
 
 // begin: user authentication
 app.post("/login", async (req, res, next) =>
-    requestKit.default.handleRequestSafely(req, res, next, async () => {
+    requestKit.handleRequestSafely(req, res, next, async () => {
         const { email, password } = req.body;
 
         const user = await authenticate(email, password);
@@ -98,7 +98,7 @@ app.post("/login", async (req, res, next) =>
 // completed
 
 app.post("/register", async (req, res, next) =>
-    requestKit.default.handleRequestSafely(req, res, next, async () => {
+    requestKit.handleRequestSafely(req, res, next, async () => {
         try {
             const _user = await authenticate(email, password);
             if (_user) {
@@ -122,7 +122,7 @@ app.post("/register", async (req, res, next) =>
 // completed
 
 app.get("/current-user", async (req, res, next) =>
-    requestKit.default.handleRequestSafely(req, res, next, async () => {
+    requestKit.handleRequestSafely(req, res, next, async () => {
         const currentUser = await (0, getCurrentUser.default)(req);
         return res.status(200).json({
             status: 200,
@@ -132,7 +132,7 @@ app.get("/current-user", async (req, res, next) =>
 );
 
 app.post("/register/:uplink_id", async (req, res, next) =>
-    requestKit.default.handleRequestSafely(req, res, next, async () => {
+    requestKit.handleRequestSafely(req, res, next, async () => {
         //
     })
 );
@@ -157,7 +157,7 @@ app.post("/update-user/:user_id", async (req, res) => {
 
 // begin: referrals
 app.get("/get-user-uplink/:user_id", async (req, res, next) => {
-    return requestKit.default.handleRequestSafely(req, res, next, async () => {
+    return requestKit.handleRequestSafely(req, res, next, async () => {
         return res
             .status(200)
             .json(await (0, getUserUplink.default)(req.params.user_id));
@@ -165,7 +165,7 @@ app.get("/get-user-uplink/:user_id", async (req, res, next) => {
 });
 
 app.get("/get-user-downlinks/:user_id", async (req, res, next) => {
-    return requestKit.default.handleRequestSafely(req, res, next, async () => {
+    return requestKit.handleRequestSafely(req, res, next, async () => {
         return res.status(200).json({
             downlinks: await (0, getUserDownlinks.default)(req.params.user_id),
         });
@@ -177,7 +177,7 @@ app.get("/get-user-downlinks/:user_id", async (req, res, next) => {
 
 // begin: coupon code management
 app.get("/generate-coupon-code/:seed_amount", async (req, res, next) => {
-    return requestKit.default.handleRequestSafely(req, res, next, async () => {
+    return requestKit.handleRequestSafely(req, res, next, async () => {
         const seed_amount = Number(req.params.seed_amount);
 
         if (isNaN(seed_amount)) {
@@ -197,25 +197,25 @@ app.get("/generate-coupon-code/:seed_amount", async (req, res, next) => {
 
 // begin: endpoints for crediting and debiting user's account
 app.post("/credit-rsm-points/:user_id", async (req, res, next) =>
-    requestKit.default.handleRequestSafely(req, res, next, async () => {
+    requestKit.handleRequestSafely(req, res, next, async () => {
         //
     })
 );
 
 app.post("/debit-rsm-points/:user_id", async (req, res, next) =>
-    requestKit.default.handleRequestSafely(req, res, next, async () => {
+    requestKit.handleRequestSafely(req, res, next, async () => {
         //
     })
 );
 
 app.post("/credit-referral-balance/:user_id", async (req, res, next) =>
-    requestKit.default.handleRequestSafely(req, res, next, async () => {
+    requestKit.handleRequestSafely(req, res, next, async () => {
         //
     })
 );
 
 app.post("/debit-referral-balance/:user_id", async (req, res, next) =>
-    requestKit.default.handleRequestSafely(req, res, next, async () => {
+    requestKit.handleRequestSafely(req, res, next, async () => {
         //
     })
 );
@@ -225,7 +225,7 @@ app.post("/debit-referral-balance/:user_id", async (req, res, next) =>
 
 // get comission ratio for referral
 app.get("/commission-ratio", async (req, res, next) =>
-    requestKit.default.handleRequestSafely(req, res, next, async () => {
+    requestKit.handleRequestSafely(req, res, next, async () => {
         res.header("Cache-COntrol", "stale-if-error");
         res.status(200).json({
             ratios: User.UserTierCommisions,

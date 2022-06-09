@@ -1,12 +1,18 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
 const {
     default: hashPassword
 } = require("../../util/hashPassword");
 const {
     default: users
 } = require("../collections/User");
-const mongoose = require('mongoose');
+
+const { default: couponCodes } = require("../collections/couponCodes");
+const { default: dateDifferenceInHours } = require("../../util/dateDifferenceInHours");
 
 const createUser = async (properties) => {
 
@@ -31,15 +37,28 @@ const createUser = async (properties) => {
     const createdAt = _createdAt ? new Date(_createdAt) : new Date();
     const updatedAt = _updatedAt ? new Date(_updatedAt) : new Date();
 
+    // check it a user with this email already exists
     const alreadyExists = await (await users()).findOne({ email }).exec();
+    // check if coupon code is valid of has expired
+    const expiredCoupon = await (await couponCodes()).findOne({ couponCode }).exec();
+    // check if coupon code has already been used
+    const couponCodeUsed = await (await users()).findOne({ couponCode }).exec();
+    // check if the coupon code has expired
+    const couponCodeExpired = dateDifferenceInHours(
+        (expiredCoupon && expiredCoupon.createdAt) ? expiredCoupon.createdAt : (Date.now() + 1),
+        Date.now()
+    ) > 24;
 
-    console.log('alreadyExists: ', alreadyExists);
 
-    if (alreadyExists) {
-        console.log('user already exists: ', response);
+    if (couponCodeUsed) {
+        throw new Error('This coupon code has already been used');
+    } else if (alreadyExists) {
         throw new Error('User already exists');
+    } else if (couponCodeExpired) {
+        throw new Error('This coupon code has expired! Each code expires after 24 hours');
+    } else if (!alreadyExists && !couponCodeUsed && !couponCodeExpired) {
+        throw new Error('Invalid coupon code');
     }
-
 
     const insertProps = {};
 
