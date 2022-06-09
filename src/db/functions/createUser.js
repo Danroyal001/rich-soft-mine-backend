@@ -40,14 +40,16 @@ const createUser = async (properties) => {
     // check it a user with this email already exists
     const alreadyExists = await (await users()).findOne({ email }).exec();
     // check if coupon code is valid of has expired
-    const expiredCoupon = await (await couponCodes()).findOne({ couponCode }).exec();
+    const couponFromDatabase = await (await couponCodes()).findOne({ couponCode }).exec();
     // check if coupon code has already been used
     const couponCodeUsed = await (await users()).findOne({ couponCode }).exec();
     // check if the coupon code has expired
     const couponCodeExpired = dateDifferenceInHours(
-        (expiredCoupon && expiredCoupon.createdAt) ? expiredCoupon.createdAt : (Date.now() + 1),
+        (couponFromDatabase && couponFromDatabase.createdAt) ? couponFromDatabase.createdAt : (Date.now() + 1),
         Date.now()
     ) > 24;
+
+    console.log('couponFromDatabase', couponFromDatabase);
 
 
     if (couponCodeUsed) {
@@ -57,7 +59,9 @@ const createUser = async (properties) => {
     } else if (couponCodeExpired) {
         throw new Error('This coupon code has expired! Each code expires after 24 hours');
     } else if (!alreadyExists && !couponCodeUsed && !couponCodeExpired) {
-        throw new Error('Invalid coupon code');
+        if (!couponFromDatabase) {
+            throw new Error('Invalid coupon code');
+        }
     }
 
     const insertProps = {};
@@ -87,6 +91,10 @@ const createUser = async (properties) => {
     if (insertProps.password) {
         insertProps.password = await hashPassword(insertProps.password);
     }
+
+    (async () => {
+        // credit referrer and referred
+    })();
 
     await (await users()).insertMany([insertProps]);
 

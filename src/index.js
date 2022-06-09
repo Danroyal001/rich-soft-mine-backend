@@ -3,7 +3,7 @@
 const express = require("express");
 require("dotenv/config");
 const dbConnection = require("./db/dbConnection");
-const updateUser = require("./db/functions/updateUser");
+const { default: updateUser } = require("./db/functions/updateUser");
 
 const { default: getUsers } = require("./db/functions/getUsers");
 const User = require("./db/Schemas/User");
@@ -15,6 +15,8 @@ const getCurrentUser = require("./util/authUtil/getCurrentUser");
 const cors = require("cors");
 const { default: authenticate } = require("./db/functions/authenticate");
 const mongoose = require("mongoose");
+
+const { default: users } = require("./db/collections/User");
 
 const { default: createUser } = require("./db/functions/createUser");
 const {
@@ -130,15 +132,10 @@ app.get("/current-user", async (req, res, next) =>
         });
     })
 );
-
-app.post("/register/:uplink_id", async (req, res, next) =>
-    requestKit.handleRequestSafely(req, res, next, async () => {
-        //
-    })
-);
+// completed
 
 app.post("/update-user/:user_id", async (req, res) => {
-    const updated = (0, updateUser.default)(
+    const updated = updateUser(
         (
             await getUsers.default({
                 _id: req.params.user_id,
@@ -172,6 +169,16 @@ app.get("/get-user-downlinks/:user_id", async (req, res, next) => {
     });
 });
 // end: referrals
+
+// --
+
+app.get("/users", async (req, res, next) => {
+    return requestKit.handleRequestSafely(req, res, next, async () => {
+        return res.status(200).json({
+            users: await (await users()).find().exec(),
+        });
+    });
+});
 
 // --
 
