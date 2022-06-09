@@ -30,8 +30,6 @@ const TIME_LABEL = "Server startup time";
 
 const PORT = Number(process.env.PORT) || 8080;
 
-const ObjectId = mongoose.Schema.Types.ObjectId;
-
 console.time(TIME_LABEL);
 
 const app = express();
@@ -131,6 +129,7 @@ app.post("/register", async (req, res, next) =>
             user,
         });
     }));
+// completed
 
 app.get("/current-user", async (req, res, next) =>
     requestKit.default.handleRequestSafely(req, res, next, async () => {
@@ -149,7 +148,7 @@ app.post("/register/:uplink_id", async (req, res, next) =>
 app.post("/update-user/:user_id", async (req, res) => {
     const updated = (0, updateUser.default)(
         (await getUsers.default({
-            _id: new ObjectId(req.params.user_id)
+            _id: req.params.user_id
         }))[0],
         req.body
     );

@@ -33,9 +33,8 @@ const UserSchema = new mongoose.Schema({
         index: true,
     },
     uplinkId: {
-        type: mongoose.Schema.Types.ObjectId,
-        default: new mongoose.Schema.Types.ObjectId('629759aa3d8465f85763486e'),
-        required: false
+        type: String,
+        required: true
     },
     email: {
         type: String,

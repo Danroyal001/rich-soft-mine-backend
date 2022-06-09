@@ -18,7 +18,7 @@ const updateUser = async (oldUser, newUser) => {
         newUser.password = void 0;
     }
 
-    newUser._id = new mongodb.ObjectId(newUser._id);
+    newUser._id = newUser._id;
 
     user = {
         ...user,
@@ -26,7 +26,7 @@ const updateUser = async (oldUser, newUser) => {
     };
 
     const response = await (await (0, User.default)()).updateOne({
-        _id: new mongodb.ObjectId(oldUser._id)
+        _id: oldUser._id
     }, user);
 
     return response.acknowledged;

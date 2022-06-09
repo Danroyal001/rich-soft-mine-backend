@@ -15,6 +15,7 @@ const createUser = async (properties) => {
         uplinkId,
         couponCode,
         email,
+        // raw/unhashed
         password,
         firstName,
         otherNames,
@@ -27,8 +28,8 @@ const createUser = async (properties) => {
     } = properties;
     const RSMPoints = Number(_RSMPoints);
     const referralEarnings = Number(_referralEarnings);
-    const createdAt = new Date(_createdAt) || new Date();
-    const updatedAt = new Date(_updatedAt) || new Date();
+    const createdAt = _createdAt ? new Date(_createdAt) : new Date();
+    const updatedAt = _updatedAt ? new Date(_updatedAt) : new Date();
 
     const alreadyExists = await (await users()).findOne({ email }).exec();
 
@@ -39,11 +40,10 @@ const createUser = async (properties) => {
         throw new Error('User already exists');
     }
 
-    if (properties.password) {
-        properties.password = await hashPassword(properties.password);
-    }
 
-    await (await users()).insertMany([{
+    const insertProps = {};
+
+    const validationObject = {
         _id,
         couponCode,
         uplinkId,
@@ -57,8 +57,20 @@ const createUser = async (properties) => {
         referralEarnings,
         createdAt,
         updatedAt,
-    }]);
+    };
 
-    return true;
+    Object.keys(validationObject).forEach(key => {
+        if (validationObject[key]) {
+            insertProps[key] = validationObject[key];
+        }
+    });
+
+    if (insertProps.password) {
+        insertProps.password = await hashPassword(insertProps.password);
+    }
+
+    await (await users()).insertMany([insertProps]);
+
+    return insertProps;
 };
 exports.default = createUser;

@@ -1,6 +1,9 @@
 "use strict";
+
 Object.defineProperty(exports, "__esModule", { value: true });
+
 exports.handleRequestSafely = void 0;
+
 const requestKit = {
     routes: {},
     addRouteToRoutes(req) {
