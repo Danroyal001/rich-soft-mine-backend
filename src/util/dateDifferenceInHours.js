@@ -9,7 +9,7 @@ Object.defineProperty(exports, "__esModule", {
  * @returns number
  */
 const dateDifferenceInHours = (date1, date2) => {
-    return parseInt((Math.abs(date1 - date2) / 36e5).toString());
+    return Math.floor(Math.abs(date1 - date2) / 36e5);
 };
 
 exports.default = dateDifferenceInHours;
