@@ -16,6 +16,9 @@
     "type": "git",
     "url": "git+https://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@github.com/Danroyal001/rich-soft-mine-backend.git"
   },
+  "engines": {
+    "node": "14.x"
+  },
   "author": "",
   "license": "ISC",
   "bugs": {
