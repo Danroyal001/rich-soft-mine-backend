@@ -18,7 +18,7 @@ const mongoose = require("mongoose");
 
 const { default: createUser } = require("./db/functions/createUser");
 const {
-  default: generateCouponCode,
+    default: generateCouponCode,
 } = require("./db/functions/generateCouponCode");
 const TIME_LABEL = "Server startup time";
 
@@ -31,9 +31,9 @@ const app = express();
 const SERVER_RUNNING_MESSAGE = `RichSoftMine backend is running at http://127.0.0.1:${PORT}`;
 
 app.use(
-  express.urlencoded({
-    extended: false,
-  })
+    express.urlencoded({
+        extended: false,
+    })
 );
 
 app.use(express.json());
@@ -43,32 +43,31 @@ app.use(cors());
 
 // --
 app.use((req, _, next) => {
-  console.log(
-    `\nRequest event received for url "${
-      req.url
-    }" with method "${req.method.toUpperCase()}" at time "${new Date()}"`
-  );
-  return next();
+    console.log(
+        `\nRequest event received for url "${req.url
+        }" with method "${req.method.toUpperCase()}" at time "${new Date()}"`
+    );
+    return next();
 });
 // completed
 
 app.get("/", (req, res, next) =>
-  requestKit.default.handleRequestSafely(req, res, next, () => {
-    return res.send(SERVER_RUNNING_MESSAGE);
-  })
+    requestKit.default.handleRequestSafely(req, res, next, () => {
+        return res.send(SERVER_RUNNING_MESSAGE);
+    })
 );
 // completed
 
 // --
 
 app.get("/test-db-connection", async (_, res) => {
-  const {
-    db: { databaseName },
-  } = await dbConnection.default();
-  return res.status(200).json({
-    status: 200,
-    db: databaseName,
-  });
+    const {
+        db: { databaseName },
+    } = await dbConnection.default();
+    return res.status(200).json({
+        status: 200,
+        db: databaseName,
+    });
 });
 // completed
 
@@ -76,81 +75,81 @@ app.get("/test-db-connection", async (_, res) => {
 
 // begin: user authentication
 app.post("/login", async (req, res, next) =>
-  requestKit.default.handleRequestSafely(req, res, next, async () => {
-    const { email, password } = req.body;
+    requestKit.default.handleRequestSafely(req, res, next, async () => {
+        const { email, password } = req.body;
 
-    const user = await authenticate(email, password);
+        const user = await authenticate(email, password);
 
-    if (!user) {
-      return res.status(400).json({
-        status: 400,
-        message: "User does not exist!",
-      });
-    }
+        if (!user) {
+            return res.status(400).json({
+                status: 400,
+                message: "User does not exist!",
+            });
+        }
 
-    const token = await (0, generateBearerToken.default)(email, password);
-    return res.status(200).json({
-      status: 200,
-      token,
-      user,
-    });
-  })
+        const token = await (0, generateBearerToken.default)(email, password);
+        return res.status(200).json({
+            status: 200,
+            token,
+            user,
+        });
+    })
 );
 // completed
 
 app.post("/register", async (req, res, next) =>
-  requestKit.default.handleRequestSafely(req, res, next, async () => {
-    try {
-      const _user = await authenticate(email, password);
-      if (_user) {
-        return res.status(400).json({
-          status: 400,
-          message: "User already exists!",
+    requestKit.default.handleRequestSafely(req, res, next, async () => {
+        try {
+            const _user = await authenticate(email, password);
+            if (_user) {
+                return res.status(400).json({
+                    status: 400,
+                    message: "User already exists!",
+                });
+            }
+        } catch (error) {
+            //
+        }
+
+        const user = await createUser(req.body);
+
+        return res.status(200).json({
+            status: 200,
+            user,
         });
-      }
-    } catch (error) {
-      //
-    }
-
-    const user = await createUser(req.body);
-
-    return res.status(200).json({
-      status: 200,
-      user,
-    });
-  })
+    })
 );
 // completed
 
 app.get("/current-user", async (req, res, next) =>
-  requestKit.default.handleRequestSafely(req, res, next, async () => {
-    const currentUser = await (0, getCurrentUser.default)(req);
-    return res.status(200).json({
-      status: 200,
-      user: currentUser,
-    });
-  })
+    requestKit.default.handleRequestSafely(req, res, next, async () => {
+        const currentUser = await (0, getCurrentUser.default)(req);
+        return res.status(200).json({
+            status: 200,
+            user: currentUser,
+        });
+    })
 );
 
 app.post("/register/:uplink_id", async (req, res, next) =>
-  requestKit.default.handleRequestSafely(req, res, next, async () => {
-    //
-  })
+    requestKit.default.handleRequestSafely(req, res, next, async () => {
+        //
+    })
 );
 
 app.post("/update-user/:user_id", async (req, res) => {
-  const updated = (0, updateUser.default)(
-    (
-      await getUsers.default({
-        _id: req.params.user_id,
-      })
-    )[0],
-    req.body
-  );
-  return res.status(200).json({
-    status: 200,
-    updated,
-  });
+    const updated = (0, updateUser.default)(
+        (
+            await getUsers.default({
+                _id: req.params.user_id,
+            })
+        )[0],
+        req.body
+    );
+    return res.status(200).json({
+        status: 200,
+        updated,
+    });
 });
 // end: user authentication
 
@@ -158,19 +157,19 @@ app.post("/update-user/:user_id", async (req, res) => {
 
 // begin: referrals
 app.get("/get-user-uplink/:user_id", async (req, res, next) => {
-  return requestKit.default.handleRequestSafely(req, res, next, async () => {
-    return res
-      .status(200)
-      .json(await (0, getUserUplink.default)(req.params.user_id));
-  });
+    return requestKit.default.handleRequestSafely(req, res, next, async () => {
+        return res
+            .status(200)
+            .json(await (0, getUserUplink.default)(req.params.user_id));
+    });
 });
 
 app.get("/get-user-downlinks/:user_id", async (req, res, next) => {
-  return requestKit.default.handleRequestSafely(req, res, next, async () => {
-    return res.status(200).json({
-      downlinks: await (0, getUserDownlinks.default)(req.params.user_id),
+    return requestKit.default.handleRequestSafely(req, res, next, async () => {
+        return res.status(200).json({
+            downlinks: await (0, getUserDownlinks.default)(req.params.user_id),
+        });
     });
-  });
 });
 // end: referrals
 
@@ -178,18 +177,18 @@ app.get("/get-user-downlinks/:user_id", async (req, res, next) => {
 
 // begin: coupon code management
 app.get("/generate-coupon-code/:seed_amount", async (req, res, next) => {
-  return requestKit.default.handleRequestSafely(req, res, next, async () => {
-    const seed_amount = Number(req.params.seed_amount);
+    return requestKit.default.handleRequestSafely(req, res, next, async () => {
+        const seed_amount = Number(req.params.seed_amount);
 
-    if (isNaN(seed_amount)) {
-      seed_amount = Number(Object.keys(User.UserTierCommisions)[0]);
-    }
+        if (isNaN(seed_amount)) {
+            seed_amount = Number(Object.keys(User.UserTierCommisions)[0]);
+        }
 
-    return res.status(200).json({
-      status: 200,
-      couponCode: await generateCouponCode(seed_amount),
+        return res.status(200).json({
+            status: 200,
+            couponCode: await generateCouponCode(seed_amount),
+        });
     });
-  });
 });
 // completed
 // end: coupon code management
@@ -198,27 +197,27 @@ app.get("/generate-coupon-code/:seed_amount", async (req, res, next) => {
 
 // begin: endpoints for crediting and debiting user's account
 app.post("/credit-rsm-points/:user_id", async (req, res, next) =>
-  requestKit.default.handleRequestSafely(req, res, next, async () => {
-    //
-  })
+    requestKit.default.handleRequestSafely(req, res, next, async () => {
+        //
+    })
 );
 
 app.post("/debit-rsm-points/:user_id", async (req, res, next) =>
-  requestKit.default.handleRequestSafely(req, res, next, async () => {
-    //
-  })
+    requestKit.default.handleRequestSafely(req, res, next, async () => {
+        //
+    })
 );
 
 app.post("/credit-referral-balance/:user_id", async (req, res, next) =>
-  requestKit.default.handleRequestSafely(req, res, next, async () => {
-    //
-  })
+    requestKit.default.handleRequestSafely(req, res, next, async () => {
+        //
+    })
 );
 
 app.post("/debit-referral-balance/:user_id", async (req, res, next) =>
-  requestKit.default.handleRequestSafely(req, res, next, async () => {
-    //
-  })
+    requestKit.default.handleRequestSafely(req, res, next, async () => {
+        //
+    })
 );
 // end: endpoints for crediting and debiting user's account
 
@@ -226,33 +225,33 @@ app.post("/debit-referral-balance/:user_id", async (req, res, next) =>
 
 // get comission ratio for referral
 app.get("/commission-ratio", async (req, res, next) =>
-  requestKit.default.handleRequestSafely(req, res, next, async () => {
-    res.header("Cache-COntrol", "stale-if-error");
-    res.status(200).json({
-      ratios: User.UserTierCommisions,
-    });
-  })
+    requestKit.default.handleRequestSafely(req, res, next, async () => {
+        res.header("Cache-COntrol", "stale-if-error");
+        res.status(200).json({
+            ratios: User.UserTierCommisions,
+        });
+    })
 );
 
 // --
 
 // handle 404 routes
 app.use((req, res) => {
-  if (!req.complete) {
-    const NOT_FOUND_MESSAGE = "404 - Route not found";
-    if (req.xhr)
-      return res.status(404).json({
-        status: 404,
-        message: NOT_FOUND_MESSAGE,
-      });
-    return res.status(404).send(NOT_FOUND_MESSAGE);
-  }
+    if (!req.complete) {
+        const NOT_FOUND_MESSAGE = "404 - Route not found";
+        if (req.xhr)
+            return res.status(404).json({
+                status: 404,
+                message: NOT_FOUND_MESSAGE,
+            });
+        return res.status(404).send(NOT_FOUND_MESSAGE);
+    }
 });
 
 // --
 
 app.listen(PORT, async () => {
-  console.clear();
-  console.log(SERVER_RUNNING_MESSAGE);
-  console.timeEnd(TIME_LABEL);
+    console.clear();
+    console.log(SERVER_RUNNING_MESSAGE);
+    console.timeEnd(TIME_LABEL);
 });
