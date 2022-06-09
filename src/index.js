@@ -89,7 +89,7 @@ app.post("/login", async (req, res, next) =>
             });
         }
 
-        const token = await (0, generateBearerToken.default)(email, password);
+        const token = await generateBearerToken.default(email, password);
         return res.status(200).json({
             status: 200,
             token,
