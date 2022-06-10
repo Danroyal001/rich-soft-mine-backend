@@ -3,33 +3,28 @@
 const express = require("express");
 require("dotenv/config");
 const dbConnection = require("./db/dbConnection");
-const updateUser = require("./db/functions/updateUser");
+const { default: updateUser } = require("./db/functions/updateUser");
 
-const {
-    default: getUsers
-} = require("./db/functions/getUsers");
+const { default: getUsers } = require("./db/functions/getUsers");
 const User = require("./db/Schemas/User");
-const requestKit = require("./util/requestKit");
-const getUserDownlinks =
-    require("./db/functions/getUserDownlinks");
-const generateBearerToken =
-    require("./db/functions/generateBearerToken");
-const getCurrentUser =
-    require("./util/authUtil/getCurrentUser");
-
+const { default: requestKit } = require("./util/requestKit");
+const getUserDownlinks = require("./db/functions/getUserDownlinks");
+const generateBearerToken = require("./db/functions/generateBearerToken");
+const getCurrentUser = require("./util/authUtil/getCurrentUser");
 
 const cors = require("cors");
-const authenticate = require("./db/functions/authenticate");
-const mongoose = require('mongoose');
+const { default: authenticate } = require("./db/functions/authenticate");
+const mongoose = require("mongoose");
 
+const { default: users } = require("./db/collections/User");
+
+const { default: createUser } = require("./db/functions/createUser");
 const {
-    default: createUser
-} = require("./db/functions/createUser");
-const { default: generateCouponCode } = require("./db/functions/generateCouponCode");
+    default: generateCouponCode,
+} = require("./db/functions/generateCouponCode");
 const TIME_LABEL = "Server startup time";
-const PORT = Number(process.env.PORT) || 8080;
 
-const ObjectId = mongoose.Schema.Types.ObjectId;
+const PORT = Number(process.env.PORT) || 8080;
 
 console.time(TIME_LABEL);
 
@@ -59,7 +54,7 @@ app.use((req, _, next) => {
 // completed
 
 app.get("/", (req, res, next) =>
-    requestKit.default.handleRequestSafely(req, res, next, () => {
+    requestKit.handleRequestSafely(req, res, next, () => {
         return res.send(SERVER_RUNNING_MESSAGE);
     })
 );
@@ -68,7 +63,9 @@ app.get("/", (req, res, next) =>
 // --
 
 app.get("/test-db-connection", async (_, res) => {
-    const conn = await dbConnection.default();
+    const {
+        db: { databaseName },
+    } = await dbConnection.default();
     return res.status(200).json({
         status: 200,
         db: databaseName,
@@ -80,55 +77,70 @@ app.get("/test-db-connection", async (_, res) => {
 
 // begin: user authentication
 app.post("/login", async (req, res, next) =>
-    requestKit.default.handleRequestSafely(req, res, next, async () => {
-        const {
-            email,
-            password
-        } = req.body;
-        const user = await (0, authenticate.default)(email, password);
+    requestKit.handleRequestSafely(req, res, next, async () => {
+        const { email, password } = req.body;
+
+        const user = await authenticate(email, password);
+
         if (!user) {
             return res.status(400).json({
                 status: 400,
                 message: "User does not exist!",
             });
         }
+
         const token = await (0, generateBearerToken.default)(email, password);
         return res.status(200).json({
             status: 200,
             token,
             user,
         });
-    }));
+    })
+);
 // completed
 
 app.post("/register", async (req, res, next) =>
-    requestKit.default.handleRequestSafely(req, res, next, async () => {
+    requestKit.handleRequestSafely(req, res, next, async () => {
+        try {
+            const _user = await authenticate(email, password);
+            if (_user) {
+                return res.status(400).json({
+                    status: 400,
+                    message: "User already exists!",
+                });
+            }
+        } catch (error) {
+            //
+        }
+
         const user = await createUser(req.body);
+
         return res.status(200).json({
             status: 200,
             user,
         });
-    }));
+    })
+);
+// completed
 
 app.get("/current-user", async (req, res, next) =>
-    requestKit.default.handleRequestSafely(req, res, next, async () => {
+    requestKit.handleRequestSafely(req, res, next, async () => {
         const currentUser = await (0, getCurrentUser.default)(req);
         return res.status(200).json({
             status: 200,
             user: currentUser,
         });
-    }));
-
-app.post("/register/:uplink_id", async (req, res, next) =>
-    requestKit.default.handleRequestSafely(req, res, next, async () => {
-        //
-    }));
+    })
+);
+// completed
 
 app.post("/update-user/:user_id", async (req, res) => {
-    const updated = (0, updateUser.default)(
-        (await getUsers.default({
-            _id: new ObjectId(req.params.user_id)
-        }))[0],
+    const updated = updateUser(
+        (
+            await getUsers.default({
+                _id: req.params.user_id,
+            })
+        )[0],
         req.body
     );
     return res.status(200).json({
@@ -142,7 +154,7 @@ app.post("/update-user/:user_id", async (req, res) => {
 
 // begin: referrals
 app.get("/get-user-uplink/:user_id", async (req, res, next) => {
-    return requestKit.default.handleRequestSafely(req, res, next, async () => {
+    return requestKit.handleRequestSafely(req, res, next, async () => {
         return res
             .status(200)
             .json(await (0, getUserUplink.default)(req.params.user_id));
@@ -150,7 +162,7 @@ app.get("/get-user-uplink/:user_id", async (req, res, next) => {
 });
 
 app.get("/get-user-downlinks/:user_id", async (req, res, next) => {
-    return requestKit.default.handleRequestSafely(req, res, next, async () => {
+    return requestKit.handleRequestSafely(req, res, next, async () => {
         return res.status(200).json({
             downlinks: await (0, getUserDownlinks.default)(req.params.user_id),
         });
@@ -160,14 +172,24 @@ app.get("/get-user-downlinks/:user_id", async (req, res, next) => {
 
 // --
 
+app.get("/users", async (req, res, next) => {
+    return requestKit.handleRequestSafely(req, res, next, async () => {
+        return res.status(200).json({
+            users: await (await users()).find().exec(),
+        });
+    });
+});
+
+// --
+
 // begin: coupon code management
 app.get("/generate-coupon-code/:seed_amount", async (req, res, next) => {
-    return requestKit.default.handleRequestSafely(req, res, next, async () => {
+    return requestKit.handleRequestSafely(req, res, next, async () => {
         const seed_amount = Number(req.params.seed_amount);
 
         if (isNaN(seed_amount)) {
             seed_amount = Number(Object.keys(User.UserTierCommisions)[0]);
-        };
+        }
 
         return res.status(200).json({
             status: 200,
@@ -175,18 +197,48 @@ app.get("/generate-coupon-code/:seed_amount", async (req, res, next) => {
         });
     });
 });
+// completed
 // end: coupon code management
+
+// --
+
+// begin: endpoints for crediting and debiting user's account
+app.post("/credit-rsm-points/:user_id", async (req, res, next) =>
+    requestKit.handleRequestSafely(req, res, next, async () => {
+        //
+    })
+);
+
+app.post("/debit-rsm-points/:user_id", async (req, res, next) =>
+    requestKit.handleRequestSafely(req, res, next, async () => {
+        //
+    })
+);
+
+app.post("/credit-referral-balance/:user_id", async (req, res, next) =>
+    requestKit.handleRequestSafely(req, res, next, async () => {
+        //
+    })
+);
+
+app.post("/debit-referral-balance/:user_id", async (req, res, next) =>
+    requestKit.handleRequestSafely(req, res, next, async () => {
+        //
+    })
+);
+// end: endpoints for crediting and debiting user's account
 
 // --
 
 // get comission ratio for referral
 app.get("/commission-ratio", async (req, res, next) =>
-    requestKit.default.handleRequestSafely(req, res, next, async () => {
+    requestKit.handleRequestSafely(req, res, next, async () => {
         res.header("Cache-COntrol", "stale-if-error");
         res.status(200).json({
             ratios: User.UserTierCommisions,
         });
-    }));
+    })
+);
 
 // --
 

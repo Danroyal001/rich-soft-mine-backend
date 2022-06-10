@@ -18,7 +18,7 @@ const users = async () => {
         client
     } = await dbConnection();
 
-    const UserModel = client.model('users', UserSchema);
+    const UserModel = client.model('users', UserSchema, 'users');
 
     return UserModel;
 };

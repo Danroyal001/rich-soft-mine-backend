@@ -1,13 +1,12 @@
 "use strict";
+
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-const { ObjectId } = require('mongodb');
-
 const referralCodes = require('referral-codes');
 const { default: getUsers } = require('./getUsers');
-const { default: dateDifferenceInHours } = require('../../util/dateDifferenceInHours');
+const { default: couponCodes } = require('./../collections/couponCodes');
 
 const generateCouponCode = async (amount = 10_000) => {
     amount = Number(amount);
@@ -17,21 +16,27 @@ const generateCouponCode = async (amount = 10_000) => {
      * @returns {Promise<string>}
      */
     const generate = async () => {
+
         const [_coupon] = referralCodes.generate({
             length: 6,
             count: 1,
             charset: referralCodes.charset('numbers'),
         });
+
         let coupon = `${_coupon}-${amount}`
+
         if (coupon.length < 12) {
             const remainder = 12 - coupon.length;
             coupon = `${'0'.repeat(remainder)}${coupon}`;
         }
 
-        console.log('coupon: ', coupon);
-
-        const [user] = await getUsers({ _id: new ObjectId(coupon) });
+        const [user] = await getUsers({ _id: coupon });
         if (user) {
+            return await generate();
+        }
+
+        const existingCode = await (await couponCodes()).findOne({ couponCode: coupon }).exec();
+        if (existingCode) {
             return await generate();
         }
 
@@ -39,6 +44,11 @@ const generateCouponCode = async (amount = 10_000) => {
     }
 
     const coupon = await generate();
+
+    // save coupon code to database
+    await (await couponCodes()).insertMany({
+        couponCode: coupon
+    })
 
     return coupon;
 };
