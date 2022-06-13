@@ -16,7 +16,7 @@ const cors = require("cors");
 const { default: authenticate } = require("./db/functions/authenticate");
 const mongoose = require("mongoose");
 
-const { default: users } = require("./db/collections/User");
+const { default: users } = require("./db/dailyLogin/User");
 
 const { default: createUser } = require("./db/functions/createUser");
 const {
@@ -94,6 +94,7 @@ app.post("/login", async (req, res, next) =>
             status: 200,
             token,
             user,
+            message: 'Logged in successfully!'
         });
     })
 );
@@ -148,6 +149,7 @@ app.post("/update-user/:user_id", async (req, res) => {
         updated,
     });
 });
+// pending
 // end: user authentication
 
 // --
@@ -160,6 +162,7 @@ app.get("/get-user-uplink/:user_id", async (req, res, next) => {
             .json(await (0, getUserUplink.default)(req.params.user_id));
     });
 });
+// pending
 
 app.get("/get-user-downlinks/:user_id", async (req, res, next) => {
     return requestKit.handleRequestSafely(req, res, next, async () => {
@@ -168,9 +171,15 @@ app.get("/get-user-downlinks/:user_id", async (req, res, next) => {
         });
     });
 });
+// pending
 // end: referrals
 
 // --
+app.get('/get-users', async (req, res, next) => {
+    return requestKit.handleRequestSafely(req, res, next, async () => {
+        return res.redirect('/users');
+    });
+});
 
 app.get("/users", async (req, res, next) => {
     return requestKit.handleRequestSafely(req, res, next, async () => {
@@ -179,11 +188,12 @@ app.get("/users", async (req, res, next) => {
         });
     });
 });
+// completed
 
 // --
 
 // begin: coupon code management
-app.get("/generate-coupon-code/:seed_amount", async (req, res, next) => {
+app.post("/generate-coupon-code/:seed_amount", async (req, res, next) => {
     return requestKit.handleRequestSafely(req, res, next, async () => {
         const seed_amount = Number(req.params.seed_amount);
 
@@ -208,24 +218,28 @@ app.post("/credit-rsm-points/:user_id", async (req, res, next) =>
         //
     })
 );
+// pending
 
 app.post("/debit-rsm-points/:user_id", async (req, res, next) =>
     requestKit.handleRequestSafely(req, res, next, async () => {
         //
     })
 );
+// pending
 
 app.post("/credit-referral-balance/:user_id", async (req, res, next) =>
     requestKit.handleRequestSafely(req, res, next, async () => {
         //
     })
 );
+// pending
 
 app.post("/debit-referral-balance/:user_id", async (req, res, next) =>
     requestKit.handleRequestSafely(req, res, next, async () => {
         //
     })
 );
+// pending
 // end: endpoints for crediting and debiting user's account
 
 // --
@@ -239,6 +253,7 @@ app.get("/commission-ratio", async (req, res, next) =>
         });
     })
 );
+// completed
 
 // --
 
@@ -254,6 +269,7 @@ app.use((req, res) => {
         return res.status(404).send(NOT_FOUND_MESSAGE);
     }
 });
+// completed
 
 // --
 

@@ -21,20 +21,23 @@ const requestKit = {
             await requestCallback();
         }
         catch (error) {
-            const ERROR_NOTICE = `An error ccurred!:  ${error}`;
+            const ERROR_NOTICE = `An error occurred!:  ${error}`;
             console.error(ERROR_NOTICE);
+
+            const ERROR_STATUS_CODE = 400;
+
+            // if (!req.complete) {
             if (req.xhr) {
-                res.status(500).json({
-                    status: 500,
+                const errorResponseObject = {
+                    status: ERROR_STATUS_CODE,
                     message: ERROR_NOTICE,
-                });
+                };
+                console.log('errorResponseObject: ', errorResponseObject);
+                res.status(ERROR_STATUS_CODE).json(errorResponseObject);
             }
 
-            if (!req.complete) {
-                res.status(500).send(ERROR_NOTICE);
-            }
-
-            res.send(ERROR_NOTICE);
+            res.status(ERROR_STATUS_CODE).send(ERROR_NOTICE);
+            // }
 
             next(error);
         }

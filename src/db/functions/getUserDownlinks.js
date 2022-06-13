@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, "__esModule", { value: true });
 
-const { default: User } = require("../collections/User");
+const { default: User } = require("../dailyLogin/User");
 
 const getUserDownlinks = async (user_id) => {
     const downlinks = await (await User())

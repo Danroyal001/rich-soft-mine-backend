@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 const { default: hashPassword } = require("../../util/hashPassword");
-const { default: User } = require("../collections/User");
+const { default: User } = require("../dailyLogin/User");
 
 const updateUser = async (oldUser, newUser) => {
     let user = await (await (0, User.default)()).findOne({

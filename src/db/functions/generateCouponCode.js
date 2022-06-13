@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 
 const referralCodes = require('referral-codes');
 const { default: getUsers } = require('./getUsers');
-const { default: couponCodes } = require('./../collections/couponCodes');
+const { default: couponCodes } = require('../dailyLogin/couponCodes');
 
 const generateCouponCode = async (amount = 10_000) => {
     amount = Number(amount);

@@ -9,9 +9,9 @@ const {
 } = require("../../util/hashPassword");
 const {
     default: users
-} = require("../collections/User");
+} = require("../dailyLogin/User");
 
-const { default: couponCodes } = require("../collections/couponCodes");
+const { default: couponCodes } = require("../dailyLogin/couponCodes");
 const { default: dateDifferenceInHours } = require("../../util/dateDifferenceInHours");
 
 const createUser = async (properties) => {
